@@ -1,0 +1,73 @@
+参数配置详细解读:
+domaintag.json。
+{
+     domainTag:"",                              //[options]－－[string]标注爬取的一个domainTag,一个爬取过程的主key,默认为该json的文件名
+    crawlerBaseInfo: {
+        baseUrl: "",                              //[must]--[string]入口url，一般为业务方指定爬取的根地址
+        threadCount: ,                         //[options]--[int]爬取线程数,默认为3
+        urlManager: "",                        //[options]--[string]urlManager,继承com.dianping.merchant.robot.crawler.common.iface.ICrawlerUrlManager
+                                                        //实现自己的业务逻辑。默认会读取spring中该接口的第一个bean
+        resultHandler: "",                     //[options]--[string]resultHandler,继承com.dianping.merchant.robot.crawler.common.iface.ICrawlerResultHandler
+                                                        //实现自己的业务逻辑。默认会读取spring中该接口的第一个bean
+        
+       downloaderPlugins:"",              //[options]-[map]该参数为了针对某些特殊的情况使用不同的下载器,key为url的正则，value为下载器的name,下载器需要继承Downloader接口做实现
+       limitMonth:,                               //[options]-[int]限制爬取的时间限制，即文章距离现在几个月前的需要入库,默认为1
+    },
+    crawlerTrigger: [                         //[must]--[list]触发器,现在实现了三种触发器，type:["simple_once","lion","time"],参数查看下面配置。
+                                                       //可通过继承实现com.dianping.merchant.robot.crawler.common.iface.ICrawlerSpiderTrigger来扩展该功能
+        {
+            type: "simple_once",          //simple_once参数[boolean],表示是否在初始化后默认启动一次
+            value: true 
+        },
+        {
+            type: "lion",                       //lion参数为[string],为lion的key,其中，值为{"off","on"}.根据lion配置的修改动态的控制spider的启动和停止
+            value: "xxxxx" 
+        },
+        {
+            type: "time",                      //time参数为[string],为quatz中的cron表达式。定时触发spider的爬取动作.
+            value: "0 0 1 * * ?"
+        }
+    ],
+    site: {
+        charset: "",                          //[options]--[string]读取页面的编码，可以查看该页面页头的charset进行配置,默认为"uft-8"
+        retryTimes: ,                        //[options]--[int]重试次数，默认为3
+        sleepTime: ,                        //[options]--[int]睡眠时间，默认为2000
+        timeOut: ,                            //[options]--[int]超时时间，默认为5000
+        cycleRetryTimes: ,              //[options]--[int]内部重试次数，默认为0
+        acceptStatCode: ,               //[options]--[set]可通过的http返回码，默认为[200]
+        userAgent:"",                       //[options]--[string]userAgent.默认为百度爬虫的userAgent,手机端页面可以做特殊处理
+        proxy: ,                                //[options]--[int]代理的数量，默认为空表示不使用代理，改代理使用的是点评的代理服务
+        useGzip: ,                            //[options]--[boolean]是否使用下载压缩,默认为false
+        
+    },
+    urlBuilder: {
+        method: "",                          //[options]--[string]http访问时候的方法，默认为GET请求,可设置为POST
+        baseUrlFilter: "",                 //[options]--[string]针对所有url都进行的一层过滤器,默认为空
+        baseDeep: ,                        //[options]--[int]需要查询的深度，对webMagic的扩展，默认为null,表示不做深度限制
+        baseCount:,                        //[options]--[int]一次查询的数量，对webMagic的扩展，默认为null,表示不做数量限制，达到数量后停止爬取
+        urlFilterPlugins: {}               //[options]--[map]该参数能提供的功能是针对某些url，对该url中的所有url进行特定的过滤。
+                                                   //key为某个url的正则过滤表达式，value为该url中的所有url的过滤表达式
+                                                   //该参数比较灵活
+      
+     pageUrlFilterPlugins:{}        //[options]–[map]该参数能提供详情页面的分页功能，即key为详情页的正则,value为分页页面的正则,
+                                                 //这样在入库的时候会多一个pageGroup和pageGroupIndex的值
+    },
+    fieldBuilder: [                          //[must]--[list]这个是对一个页面中的所有dom元素的动态查找,过滤，用以后续处理，包括入库等操作
+        {
+            fieldName: "",                     //[must]--[string]输出的一个field的name,在resultHandler中的结果map中可以获取到该field的值
+            cssSelector: "",                  //[must -for xpathSelector，xpath2Selector(不能重复出现)]--[string]css选择器，为jquery的语法
+            cssSelectorAttrName: "",   //[must -for xpathSelector，xpath2Selector(不能重复出现)]--[string]css选择器的属性名[text,innerhtml,属性]，为jquery的语法,跟“cssSelector”配合使用
+            xpathSelector: ,                 //[must -for cssSelector，xpath2Selector(不能重复出现)]--[string]xpath选择器，需要对xpath语法有一定了解
+            xpath2Selector: ,                 //[must -for cssSelector，xpathSelector(不能重复出现)]--[string]xpath2.0选择器，需要对xpath2.0语法有一定了解
+            regex: ,                              //[options]--[string]针对一个属性的正则过滤表达式,默认为null
+            isList: false,                       //[options]--[boolean]针对一个属性返回结果是一个list或者是一个string,默认为null
+            script: ,                               //[options]--[string]对webmigic的一个扩展，可以通过javascript对该field做特殊处理,默认为null
+                                                          // 示例: "script":"function dataConverter(data){ return data.substring(4,data.length)}"
+            converter:                            //[options]--[string]field转换器，通过继承com.dianping.merchant.robot.crawler.common.iface.ICrawlerConverter接口
+                                                           //加注解@CrawlerConverterTag去实现一个field的内容属性转换。参数为converter的name
+           converterParam:                  //[options]-[object]针对field转换器的传参
+          spForUrlRegex:"",                  //[options]-[string]表示针对特定页面正则的一个field,用来对不同的详情页做定制化操作      
+          defaultValue:                         //[options]-[string]如果这个field中取出来的值为空,设置该值就会有个默认的值
+        }
+    ]
+}

@@ -1,0 +1,76 @@
+{
+	"comment" : "中国烹饪协会列表页",
+	"domainTag" : "ccas-list",
+	"crawlerBaseInfo" : 
+	{
+		"baseUrls" : [
+			],
+		"threadCount" : 1,
+		"refreshRedisWhenStart" : true,
+		"exitWhenComplete" : false
+	},
+
+	"crawlerTrigger" : 
+	[
+		{
+			"type" : "simple_once",
+			"value" : true
+		}
+	],
+
+	"site" : 
+	{
+		"charset" : "GBK",
+		"timeOut" : 30000
+	},
+
+	"scheduler" : {
+		"hasDetailPage" : true,
+		"detailPageDomainTag" : "ccas-detail",
+		"listPageUrlPattern" : "http://www.ccas.com.cn/Article/List.*",
+		"needCheckDuplicate" : false
+	},
+
+	"pipelines" : [
+		"loggerPipeline"
+	],
+
+	"downloaders" : [
+		{
+			"urlPattern" : ".*",
+			"downloader": "httpClientDownloader"
+		}
+	],
+
+	"pageProcessor" : {
+		"pageParserConfigs" : [
+			{
+				"targetUrlPattern" : "http://www.ccas.com.cn/Article/List.*",
+				"pageType" : "html",
+				"fieldParserConfigs" : [
+					{
+						"fieldName" : "listdetail",
+						"xpathSelector" : "//a[@class='a_d']",
+						"isList" : true,
+						"childrenFieldParsers" : [
+							{
+								"fieldName" : "url",
+								"xpathSelector" : "//a/@href",
+								"script" : "function dataConverter(data){ if(null==data){return data}; if (data.indexOf('/')==0) {return 'http://www.ccas.com.cn' + data;}else {return data;}}"
+							}
+						]
+					}
+				]
+			}
+		],
+		"urlFilterConfigs" : [
+			{
+				"baseUrlPattern" : "http://www.ccas.com.cn/Article/List.*",
+				"targetUrlPatterns" : [
+					"http://www.ccas.com.cn/Article/HTML.*",
+				]
+			}
+		]
+	}
+
+}

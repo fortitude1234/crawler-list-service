@@ -1,0 +1,75 @@
+{
+	"comment" : "互动吧列表页",
+	"domainTag" : "hudongba-list",
+	"crawlerBaseInfo" : 
+	{
+		"baseUrls" : [
+			],
+		"threadCount" : 1,
+		"refreshRedisWhenStart" : true,
+		"exitWhenComplete" : false
+	},
+
+	"crawlerTrigger" : 
+	[
+		{
+			"type" : "simple_once",
+			"value" : true
+		}
+	],
+
+	"site" : 
+	{
+		"charset" : "UTF-8",
+		"timeOut" : 30000
+	},
+
+	"scheduler" : {
+		"hasDetailPage" : true,
+		"detailPageDomainTag" : "hudongba-detail",
+		"listPageUrlPattern" : "http://www.hdb.com/info_search.*",
+		"needCheckDuplicate" : false
+	},
+
+	"pipelines" : [
+		"loggerPipeline"
+	],
+
+	"downloaders" : [
+		{
+			"urlPattern" : ".*",
+			"downloader": "httpClientDownloader"
+		}
+	],
+
+	"pageProcessor" : {
+		"pageParserConfigs" : [
+			{
+				"targetUrlPattern" : "http://www.hdb.com/info_search.*",
+				"pageType" : "html",
+				"fieldParserConfigs" : [
+					{
+						"fieldName" : "listDetail",
+						"xpathSelector" : "//li[@class='find_main_li img']",
+						"isList" : true,
+						"childrenFieldParsers" : [
+							{
+								"fieldName" : "url",
+								"xpathSelector" : "//a/@href"
+							}
+						]
+					}
+				]
+			}
+		],
+		"urlFilterConfigs" : [
+			{
+				"baseUrlPattern" : "http://www.hdb.com/info_search.*",
+				"targetUrlPatterns" : [
+					"http://www.hdb.com/party.*"
+				]
+			}
+		]
+	}
+
+}

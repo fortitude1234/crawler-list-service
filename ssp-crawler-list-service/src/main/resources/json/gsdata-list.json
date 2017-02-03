@@ -1,0 +1,91 @@
+{
+	"comment" : "清博指数, 爬取微信公众号列表页",
+	"domainTag" : "gsdata-list",
+	"crawlerBaseInfo" : 
+	{
+		"baseUrls" : [
+			],
+		"threadCount" : 1,
+		"refreshRedisWhenStart" : false,
+		"exitWhenComplete" : false
+	},
+
+	"crawlerTrigger" : 
+	[
+		{
+			"type" : "simple_once",
+			"value" : true
+		}
+	],
+
+	"site" : 
+	{
+		"charset" : "UTF-8",
+		"timeOut" : 30000
+	},
+
+	"scheduler" : {
+		"hasDetailPage" : true,
+		"detailPageDomainTag" : "wechat-detail",
+		"listPageUrlPattern" : "http://www.gsdata.cn/Query/.*",
+		"needCheckDuplicate" : false
+	},
+
+	"pipelines" : [
+		"loggerPipeline"
+	],
+
+	"downloaders" : [
+		{
+			"urlPattern" : ".*",
+			"downloader": "htmlUnitDownloader"
+		}
+	],
+
+	"pageProcessor" : {
+		"pageParserConfigs" : [
+			{
+				"targetUrlPattern" : "http://www.gsdata.cn/Query/.*",
+				"pageType" : "html",
+				"fieldParserConfigs" : [
+					{
+						"fieldName" : "listDetail",
+						"xpathSelector" : "//ul[@class='article-ul']/li",
+						"isList" : true,
+						"childrenFieldParsers" : [
+							{
+								"fieldName" : "url",
+								"xpathSelector" : "//div[@class='wx-news']/a/@href"
+							},
+							{
+								"fieldName" : "thumbnail",
+								"xpathSelector" : "//div[@class='wx-img']//img/@src",
+								"converter" : "imgConverter",
+								"converterParam" : {"isThumbnail":true}
+							},
+							{
+								"fieldName" : "readCount",
+								"xpathSelector" : "//font/text()",
+								"script" : "function dataConverter(data){ if(null==data){return data};var regResult = /(\\d+)/.exec(data.trim()); if (regResult == null ) {return null}; return regResult[1];}"
+							},
+							{
+								"fieldName" : "likeCount",
+								"xpathSelector" : "//font/text()",
+								"script" : "function dataConverter(data){ if(null==data){return data};var regResult = /(\\d+)\\s+(\\d+)/.exec(data.trim()); if (regResult == null ) {return null}; return regResult[2];}"
+							}
+						]
+					}
+				]
+			}
+		],
+		"urlFilterConfigs" : [
+			{
+				"baseUrlPattern" : "http://www.gsdata.cn/Query/.*",
+				"targetUrlPatterns" : [
+					"http://mp.weixin.qq.com/s.*"
+				]
+			}
+		]
+	}
+
+}

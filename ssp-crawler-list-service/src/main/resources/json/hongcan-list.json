@@ -1,0 +1,87 @@
+{
+	"comment" : "红餐网列表页",
+	"domainTag" : "hongcan-list",
+	"crawlerBaseInfo" : 
+	{
+		"baseUrls" : [
+			],
+		"threadCount" : 1,
+		"refreshRedisWhenStart" : true,
+		"exitWhenComplete" : false
+	},
+
+	"crawlerTrigger" : 
+	[
+		{
+			"type" : "simple_once",
+			"value" : true
+		}
+	],
+
+	"site" : 
+	{
+		"charset" : "gbk",
+		"timeOut" : 30000
+	},
+
+	"scheduler" : {
+		"hasDetailPage" : true,
+		"detailPageDomainTag" : "hongcan-detail",
+		"listPageUrlPattern" : "http://www.canyin88.com/plus/ajaxindex.php.*",
+		"needCheckDuplicate" : false
+	},
+
+	"pipelines" : [
+		"loggerPipeline"
+	],
+
+	"downloaders" : [
+		{
+			"urlPattern" : ".*",
+			"downloader": "httpClientDownloader"
+		}
+	],
+
+	"pageProcessor" : {
+		"afterSubProcessor": ["listDetailSubProcessor"],
+		"pageParserConfigs" : [
+			{
+				"targetUrlPattern" : "http://www.canyin88.com/plus/ajaxindex.php.*",
+				"pageType" : "json",
+				"fieldParserConfigs" : [
+					{
+						"fieldName" : "listDetail",
+						"jsonSelector" : "$.listNews",
+						"isList" : true,
+						"childrenFieldParsers" : [
+							{
+								"fieldName" : "url",
+								"jsonSelector" : "$.url",
+								"script" : "function dataConverter(data){ if(null==data){return data};return data;}"
+							},
+							{
+								"fieldName" : "thumbnail",
+								"jsonSelector" : "$.thumb",
+								"converter" : "imgConverter",
+								"converterParam" : {"isThumbnail":true}
+							},
+							{
+								"fieldName" : "readCount",
+								"jsonSelector" : "$.clicks"
+							}
+						]
+					}
+				]
+			}
+		],
+		"urlFilterConfigs" : [
+			{
+				"baseUrlPattern" : "http://www.canyin88.com/plus/ajaxindex.php.*",
+				"targetUrlPatterns" : [
+					"http://www.canyin88.com/.*"
+				]
+			}
+		]
+	}
+
+}

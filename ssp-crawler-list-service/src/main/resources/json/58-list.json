@@ -1,0 +1,75 @@
+{
+	"comment" : "58列表页",
+	"domainTag" : "58-list",
+	"crawlerBaseInfo" : 
+	{
+		"baseUrls" : [
+			"http://sh.58.com/canyinylzx/pn1"
+			],
+		"threadCount" : 1,
+		"refreshRedisWhenStart" : true,
+		"exitWhenComplete" : false
+	},
+
+	"crawlerTrigger" : 
+	[
+		{
+			"type" : "simple_once",
+			"value" : true
+		}
+	],
+
+	"site" : 
+	{
+		"charset" : "UTF-8",
+		"timeOut" : 30000
+	},
+
+	"scheduler" : {
+		"hasDetailPage" : true,
+		"detailPageDomainTag" : "58-detail",
+		"listPageUrlPattern" : ".*58.com/[a-zA-Z]*?/[^\\d].*",
+		"needCheckDuplicate" : false
+	},
+
+	"pipelines" : [
+		"loggerPipeline"
+	],
+
+	"downloaders" : [
+		{
+			"urlPattern" : ".*",
+			"downloader": "mtDownloader"
+		}
+	],
+
+	"pageProcessor" : {
+		"afterSubProcessor" : [ "58urlFilter" ],
+		"pageParserConfigs" : [
+			{
+				"targetUrlPattern" : ".*",
+				"pageType" : "html",
+				"fieldParserConfigs" : [
+					{
+						"fieldName" : "listDetail",
+						"xpathSelector" : "//div[@id='infolist']/table//tr",
+						"isList" : true,
+						"childrenFieldParsers" : [
+							{
+								"fieldName" : "url",
+								"xpathSelector" : "//a/@href"
+							},
+							{
+								"fieldName" : "thumbnail",
+								"xpathSelector" : "//img/@lazy_src",
+								"converter" : "imgConverter",
+								"converterParam" : {"isThumbnail":true}
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+
+}

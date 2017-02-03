@@ -1,0 +1,83 @@
+{
+	"comment" : "非速搜列表页",
+	"domainTag" : "fairso-list",
+	"crawlerBaseInfo" : 
+	{
+		"baseUrls" : [
+
+			],
+		"threadCount" : 1,
+		"refreshRedisWhenStart" : true,
+		"exitWhenComplete" : false
+	},
+
+	"crawlerTrigger" : 
+	[
+		{
+			"type" : "simple_once",
+			"value" : true
+		}
+	],
+
+	"site" : 
+	{
+		"charset" : "UTF-8",
+		"timeOut" : 30000
+	},
+
+	"scheduler" : {
+		"hasDetailPage" : true,
+		"detailPageDomainTag" : "fairso-detail",
+		"listPageUrlPattern" : "http://www.fairso.com/index.php.*",
+		"needCheckDuplicate" : false
+	},
+
+	"pipelines" : [
+		"loggerPipeline"
+	],
+
+	"downloaders" : [
+		{
+			"urlPattern" : ".*",
+			"downloader": "httpClientDownloader"
+		}
+	],
+
+	"pageProcessor" : {
+		"pageParserConfigs" : [
+			{
+				"targetUrlPattern" : "http://www.fairso.com/index.php.*",
+				"pageType" : "html",
+				"fieldParserConfigs" : [
+					{
+						"fieldName" : "listDetail",
+						"xpathSelector" : "//div[@class='mlm1l']",
+						"isList" : true,
+						"childrenFieldParsers" : [
+							{
+								"fieldName" : "url",
+								"xpathSelector" : "//a/@href"
+							},
+							{
+								"fieldName" : "thumbnail",
+								"xpathSelector" : "//img/@src",
+								"script" : "function dataConverter(data){ if(null==data){return data};return 'http://www.fairso.com/' + data;}",
+								"converter" : "imgConverter",
+								"converterParam" : {"isThumbnail":true}
+							}
+						]
+					}
+				]
+			}
+		],
+		"urlFilterConfigs" : [
+			{
+				"baseUrlPattern" : "http://www.fairso.com/index.php.*",
+				"targetUrlPatterns" : [
+					"http://www.fairso.com/fair/.*"
+				]
+			}
+		]
+	}
+
+}

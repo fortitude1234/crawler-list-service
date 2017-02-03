@@ -1,0 +1,81 @@
+{
+  "comment" : "餐饮界列表页",
+  "domainTag" : "yiou-list",
+  "crawlerBaseInfo" :
+  {
+    "baseUrls" : [
+    ],
+    "threadCount" : 1,
+    "refreshRedisWhenStart" : true,
+    "exitWhenComplete" : false
+  },
+
+  "crawlerTrigger" :
+  [
+    {
+      "type" : "simple_once",
+      "value" : true
+    }
+  ],
+
+  "site" :
+  {
+    "charset" : "UTF-8",
+    "timeOut" : 30000
+  },
+
+  "scheduler" : {
+    "hasDetailPage" : true,
+    "detailPageDomainTag" : "yiou-detail",
+    "listPageUrlPattern" : "http://www.iyiou.com/i/canyin/.*",
+    "needCheckDuplicate" : false
+  },
+
+  "pipelines" : [
+    "loggerPipeline"
+  ],
+
+  "downloaders" : [
+    {
+      "urlPattern" : ".*",
+      "downloader": "httpClientDownloader"
+    }
+  ],
+
+  "pageProcessor" : {
+    "pageParserConfigs" : [
+      {
+        "targetUrlPattern" : "http://www.iyiou.com/i/canyin/.*",
+        "pageType" : "html",
+        "fieldParserConfigs" : [
+          {
+            "fieldName" : "listDetail",
+            "xpathSelector" : "//ul[@class='specificpost-list']/li/div[1]",
+            "isList" : true,
+            "childrenFieldParsers" : [
+              {
+                "fieldName" : "url",
+                "xpathSelector" : "//a/@href"
+              },
+              {
+                "fieldName" : "thumbnail",
+                "xpathSelector" : "//a/img/@src",
+                "converter" : "imgConverter",
+                "converterParam" : {"isThumbnail":true}
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "urlFilterConfigs" : [
+      {
+        "baseUrlPattern" : "http://www.iyiou.com/i/canyin/.*",
+        "targetUrlPatterns" : [
+          "http://www.iyiou.com/p/.*"
+        ]
+      }
+    ]
+  }
+
+}

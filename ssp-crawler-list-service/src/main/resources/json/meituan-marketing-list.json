@@ -1,0 +1,90 @@
+{
+	"comment" : "美团营销列表页任务",
+	"domainTag" : "meituan-marketing-list",
+	"crawlerBaseInfo" : 
+	{
+		"baseUrls" : [
+			],
+		"threadCount" : 1,
+		"refreshRedisWhenStart" : true,
+		"exitWhenComplete" : false
+	},
+
+	"crawlerTrigger" : 
+	[
+		{
+			"type" : "simple_once",
+			"value" : true
+		}
+	],
+
+	"site" : 
+	{
+		"charset" : "utf-8",
+		"timeOut" : 30000
+	},
+
+	"scheduler" : {
+		"hasDetailPage" : true,
+		"detailPageDomainTag" : "meituan-marketing-detail",
+		"listPageUrlPattern" : "http://link.meituan.com/pub/app/post/load?.*",
+		"needCheckDuplicate" : false
+	},
+
+	"pipelines" : [
+		"loggerPipeline"
+	],
+
+	"downloaders" : [
+		{
+			"urlPattern" : ".*",
+			"downloader": "httpClientDownloader"
+		}
+	],
+
+	"pageProcessor" : {
+		"pageParserConfigs" : [
+			{
+				"targetUrlPattern" : "http://link.meituan.com/pub/app/post/load?.*",
+				"pageType" : "json",
+				"fieldParserConfigs" : [
+					{
+						"fieldName" : "listDetail",
+						"jsonSelector" : "$.data",
+						"isList" : true,
+						"childrenFieldParsers" : [
+							{
+								"fieldName" : "url",
+								"jsonSelector" : "$.id",
+								"script" : "function dataConverter(data){ if(null==data){return data};return 'http://link.meituan.com/pub/app/post/' + data;}"
+							},
+							{
+								"fieldName" : "thumbnail",
+								"jsonSelector" : "$.firstImgUrl",
+								"converter" : "imgConverter",
+								"converterParam" : {"isThumbnail":true}
+							},
+							{
+								"fieldName" : "commentCount",
+								"jsonSelector" : "$.commentCount"
+							},
+							{
+								"fieldName" : "likeCount",
+								"jsonSelector" : "$.likeCount"
+							}
+						]
+					}
+				]
+			}
+		],
+		"urlFilterConfigs" : [
+			{
+				"baseUrlPattern" : "http://link.meituan.com/pub/app/post/load?.*",
+				"targetUrlPatterns" : [
+					"http://link.meituan.com/pub/app/post/\\d*"
+				]
+			}
+		]
+	}
+
+}

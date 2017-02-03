@@ -1,0 +1,90 @@
+{
+  "comment" : "新榜列表页",
+  "domainTag" : "newrank-weixin-list",
+  "crawlerBaseInfo" :
+  {
+    "baseUrls" : [
+    ],
+    "threadCount" : 1,
+    "refreshRedisWhenStart" : true,
+    "exitWhenComplete" : false
+  },
+
+  "crawlerTrigger" :
+  [
+    {
+      "type" : "simple_once",
+      "value" : true
+    }
+  ],
+
+  "site" :
+  {
+    "charset" : "utf-8",
+    "timeOut" : 30000
+  },
+
+  "scheduler" : {
+    "hasDetailPage" : true,
+    "detailPageDomainTag" : "wechat-detail",
+    "listPageUrlPattern" : "http://www.newrank.cn/.*",
+    "needCheckDuplicate" : false
+  },
+
+  "pipelines" : [
+    "loggerPipeline"
+  ],
+
+  "downloaders" : [
+    {
+      "urlPattern" : ".*",
+      "downloader": "httpClientDownloader"
+    }
+  ],
+
+  "pageProcessor" : {
+    "pageParserConfigs" : [
+      {
+        "targetUrlPattern" : "http://www.newrank.cn/.*",
+        "pageType" : "json",
+        "fieldParserConfigs" : [
+          {
+            "fieldName" : "listDetail",
+            "jsonSelector" : "$.value.lastestArticle",
+            "isList" : true,
+            "childrenFieldParsers" : [
+              {
+                "fieldName" : "url",
+                "jsonSelector" : "$.url"
+              },
+              {
+                "fieldName" : "readCount",
+                "jsonSelector" : "$.clicksCount",
+                "script" : "function dataConverter(data){ if(null==data){return data};var regResult = /(\\d+)/.exec(data.trim()); if (regResult == null ) {return null}; return regResult[1];}"
+              },
+              {
+                "fieldName" : "likeCount",
+                "jsonSelector" : "$.likeCount",
+                "script" : "function dataConverter(data){ if(null==data){return data};var regResult = /(\\d+)/.exec(data.trim()); if (regResult == null ) {return null}; return regResult[1];}"
+              },
+              {
+                "fieldName" : "commentCount",
+                "jsonSelector" : "$.commentsCount",
+                "script" : "function dataConverter(data){ if(null==data){return data};var regResult = /(\\d+)/.exec(data.trim()); if (regResult == null ) {return null}; return regResult[1];}"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "urlFilterConfigs" : [
+      {
+        "baseUrlPattern" : "http://www.newrank.cn/.*",
+        "targetUrlPatterns" : [
+          "http://mp.weixin.qq.com/s.*"
+        ]
+      }
+    ]
+  }
+
+}

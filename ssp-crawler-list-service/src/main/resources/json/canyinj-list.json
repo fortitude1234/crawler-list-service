@@ -1,0 +1,82 @@
+{
+	"comment" : "餐饮界列表页",
+	"domainTag" : "canyinj-list",
+	"crawlerBaseInfo" : 
+	{
+		"baseUrls" : [
+			],
+		"threadCount" : 1,
+		"refreshRedisWhenStart" : true,
+		"exitWhenComplete" : false
+	},
+
+	"crawlerTrigger" : 
+	[
+		{
+			"type" : "simple_once",
+			"value" : true
+		}
+	],
+
+	"site" : 
+	{
+		"charset" : "UTF-8",
+		"timeOut" : 30000
+	},
+
+	"scheduler" : {
+		"hasDetailPage" : true,
+		"detailPageDomainTag" : "canyinj-detail",
+		"listPageUrlPattern" : "http://www.canyinj.com/article/.*",
+		"needCheckDuplicate" : false
+	},
+
+	"pipelines" : [
+		"loggerPipeline"
+	],
+
+	"downloaders" : [
+		{
+			"urlPattern" : ".*",
+			"downloader": "httpClientDownloader"
+		}
+	],
+
+	"pageProcessor" : {
+		"pageParserConfigs" : [
+			{
+				"targetUrlPattern" : "http://www.canyinj.com/article/.*",
+				"pageType" : "html",
+				"fieldParserConfigs" : [
+					{
+						"fieldName" : "listDetail",
+						"xpathSelector" : "//div[@class='hlgd-box']/dl/dt",
+						"isList" : true,
+						"childrenFieldParsers" : [
+							{
+								"fieldName" : "url",
+								"xpathSelector" : "//a/@href"
+							},
+							{
+								"fieldName" : "thumbnail",
+								"xpathSelector" : "//img/@src",
+								"script" : "function dataConverter(data){ if(null==data){return data};return 'http://www.canyinj.com/' + data;}",
+								"converter" : "imgConverter",
+								"converterParam" : {"isThumbnail":true}
+							}
+						]
+					}
+				]
+			}
+		],
+		"urlFilterConfigs" : [
+			{
+				"baseUrlPattern" : "http://www.canyinj.com/article/.*",
+				"targetUrlPatterns" : [
+					"http://www.canyinj.com/news/.*"
+				]
+			}
+		]
+	}
+
+}

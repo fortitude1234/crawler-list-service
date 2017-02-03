@@ -1,0 +1,82 @@
+{
+	"comment" : "活动家列表页",
+	"domainTag" : "huodongjia-list",
+	"crawlerBaseInfo" : 
+	{
+		"baseUrls" : [
+			],
+		"threadCount" : 1,
+		"refreshRedisWhenStart" : true,
+		"exitWhenComplete" : false
+	},
+
+	"crawlerTrigger" : 
+	[
+		{
+			"type" : "simple_once",
+			"value" : true
+		}
+	],
+
+	"site" : 
+	{
+		"charset" : "UTF-8",
+		"timeOut" : 30000
+	},
+
+	"scheduler" : {
+		"hasDetailPage" : true,
+		"detailPageDomainTag" : "huodongjia-detail",
+		"listPageUrlPattern" : "http://www.huodongjia.com/search/.*",
+		"needCheckDuplicate" : false
+	},
+
+	"pipelines" : [
+		"loggerPipeline"
+	],
+
+	"downloaders" : [
+		{
+			"urlPattern" : ".*",
+			"downloader": "httpClientDownloader"
+		}
+	],
+
+	"pageProcessor" : {
+		"pageParserConfigs" : [
+			{
+				"targetUrlPattern" : "http://www.huodongjia.com/search/.*",
+				"pageType" : "html",
+				"fieldParserConfigs" : [
+					{
+						"fieldName" : "listDetail",
+						"xpathSelector" : "//div[@class='meeting_list']",
+						"isList" : true,
+						"childrenFieldParsers" : [
+							{
+								"fieldName" : "url",
+								"xpathSelector" : "//h3[@class='meeting_name']/a/@href",
+								"script" : "function dataConverter(data){ if(null==data){return data}; if (data.indexOf('/')==0) {return 'http://www.huodongjia.com' + data;}else {return data;}}"
+							},
+							{
+								"fieldName" : "thumbnail",
+								"xpathSelector" : "//img/@src",
+								"converter" : "imgConverter",
+								"converterParam" : {"isThumbnail":true}
+							}
+						]
+					}
+				]
+			}
+		],
+		"urlFilterConfigs" : [
+			{
+				"baseUrlPattern" : "http://www.huodongjia.com/search/.*",
+				"targetUrlPatterns" : [
+					"http://www.huodongjia.com/event.*"
+				]
+			}
+		]
+	}
+
+}

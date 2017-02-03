@@ -1,0 +1,82 @@
+{
+	"comment" : "活动行列表页",
+	"domainTag" : "huodongxing-list",
+	"crawlerBaseInfo" : 
+	{
+		"baseUrls" : [
+
+			],
+		"threadCount" : 1,
+		"refreshRedisWhenStart" : true,
+		"exitWhenComplete" : false
+	},
+
+	"crawlerTrigger" : 
+	[
+		{
+			"type" : "simple_once",
+			"value" : true
+		}
+	],
+
+	"site" : 
+	{
+		"charset" : "UTF-8",
+		"timeOut" : 30000
+	},
+
+	"scheduler" : {
+		"hasDetailPage" : true,
+		"detailPageDomainTag" : "huodongxing-detail",
+		"listPageUrlPattern" : "http://www.huodongxing.com/search.*",
+		"needCheckDuplicate" : false
+	},
+
+	"pipelines" : [
+		"loggerPipeline"
+	],
+
+	"downloaders" : [
+		{
+			"urlPattern" : ".*",
+			"downloader": "httpClientDownloader"
+		}
+	],
+
+	"pageProcessor" : {
+		"pageParserConfigs" : [
+			{
+				"targetUrlPattern" : "http://www.huodongxing.com/search.*",
+				"pageType" : "html",
+				"fieldParserConfigs" : [
+					{
+						"fieldName" : "listDetail",
+						"xpathSelector" : "//ul[@class='event-horizontal-list-new']/li",
+						"isList" : true,
+						"childrenFieldParsers" : [
+							{
+								"fieldName" : "url",
+								"xpathSelector" : "//h3/a/@href"
+							},
+							{
+								"fieldName" : "thumbnail",
+								"xpathSelector" : "//img/@src",
+								"converter" : "imgConverter",
+								"converterParam" : {"isThumbnail":true}
+							}
+						]
+					}
+				]
+			}
+		],
+		"urlFilterConfigs" : [
+			{
+				"baseUrlPattern" : "http://www.huodongxing.com/search.*",
+				"targetUrlPatterns" : [
+					"http://www.huodongxing.com/event/.*"
+				]
+			}
+		]
+	}
+
+}
